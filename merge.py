@@ -19,7 +19,7 @@ inputPath = "/mnt/d/tmp"
 Season = '01'
 
 script_version = '0.2'
-media_extensions = ['.mka', '.mkv', 'ass']
+media_extensions = ['.mka', '.mkv', '.ass']
 font_extensions = ['.ttf', '.TTF', '.otf']
 error_list = []
 shema = []
