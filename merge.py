@@ -13,14 +13,14 @@ import time
 lock = threading.Lock()
 
 
-base_filename = "Akashic Records of Bastard Magic Instructor"
+base_filename = "CANAAN"
 outputPath = "/mnt/c/tmp"
-inputPath = "/mnt/d/tmp"
+inputPath = "./"
 Season = '01'
 
 script_version = '0.2'
 media_extensions = ['.mka', '.mkv', '.ass']
-font_extensions = ['.ttf', '.TTF', '.otf']
+font_extensions = ['.ttf', '.TTF', '.Ttf', '.ttc', '.otf']
 error_list = []
 shema = []
 base_info = ''
@@ -48,7 +48,7 @@ def output_info(number, output, file_list):
 
         table.align["Output"] = "l"
         table.align["Files"] = "l"
-        table.sortby = "EP" 
+        table.sortby = "EP"
         table.hrules=ALL
         print(base_info)
         print(table)
@@ -60,6 +60,7 @@ def error_info (error):
         error_list.append(error)
 
 def find_unique_numbers(file_list):
+    print (file_list)
     numbers = set()
     for filename in file_list:
         name, extension = os.path.splitext(filename)
@@ -130,12 +131,14 @@ Info:\n\
     Font extensinons: {font_extensions}\n'
 
     file_list = os.listdir(inputPath)
+    print(file_list)
     numbers = find_unique_numbers(file_list)
+    print(numbers)
     fonts_list = font_check(file_list)
     num_threads = multiprocessing.cpu_count()
     print (f'Threads count: {num_threads}')
     numbers = filte(numbers)
-    
+
     Parallel(n_jobs=num_threads, backend='threading')(delayed(process_number)(number, file_list, fonts_list) for number in numbers)
 
     fonts = '\n\t'.join(map(str, fonts_list[1::2]))
