@@ -130,7 +130,8 @@ def filte(numbers):
             filtered_numbers.append(numbers[i])
     return filtered_numbers
 
-def move_files_to_root(input_path):
+def copy_files_to_root(input_path):
+    copied_files = []
     for root, dirs, files in os.walk(input_path):
         if root == input_path:
             continue
@@ -138,11 +139,20 @@ def move_files_to_root(input_path):
             file_path = os.path.join(root, file)
             new_path = os.path.join(input_path, file)
             try:
-                # Перемещаем файл
-                shutil.move(file_path, new_path)
-                print(f"Moved: {file_path} -> {new_path}")
+                # Copying file
+                shutil.copy2(file_path, new_path)
+                copied_files.append(new_path)
+                print(f"Copied: {file_path} -> {new_path}")
             except Exception as e:
-                print(f"Error moving {file_path}: {e}")
+                print(f"Error copying {file_path}: {e}")
+    return copied_files
+
+def delete_copied_files(copied_files):
+    for file in copied_files:
+        try:
+            os.remove(file)
+        except Exception as e:
+            print(f"Error deleting {file}: {e}")
 
 def main():
     global base_info
@@ -152,7 +162,7 @@ Info:\n\
     Media extensions: {media_extensions}\n\
     Font extensinons: {font_extensions}\n'
 
-    move_files_to_root(inputPath)
+    copied_files = copy_files_to_root(inputPath)
 
     # Get list of files with absolute paths
     file_list = [os.path.join(inputPath, f) for f in os.listdir(inputPath) if os.path.isfile(os.path.join(inputPath, f))]
@@ -167,6 +177,8 @@ Info:\n\
 
     fonts = '\n\t'.join(map(str, fonts_list[1::2]))
     print(f"List of added fonts:\n {fonts}")
+
+    delete_copied_files(copied_files)
 
     for error in error_list:
         print(error)
