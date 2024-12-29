@@ -18,7 +18,7 @@ outputPath = "/mnt/c/tmp"
 inputPath = "./"
 Season = '01'
 
-script_version = '0.2'
+script_version = '0.3'
 media_extensions = ['.mka', '.mkv', '.ass']
 font_extensions = ['.ttf', '.TTF', '.Ttf', '.ttc', '.otf']
 error_list = []
