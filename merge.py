@@ -13,38 +13,39 @@ import shutil
 
 lock = threading.Lock()
 
-base_filename = "CANAAN"
-outputPath = "/mnt/c/tmp"
-inputPath = "./"
+base_filename = "Dandadan"
+outputPath = "/home/ziviy/Downloads/Dandadan"
+inputPath = "/home/ziviy/Downloads/old_Dandadan [WEB-DL CR 1080p AVC DDP]"
 Season = '01'
 
 script_version = '0.3'
 media_extensions = ['.mka', '.mkv', '.ass']
 font_extensions = ['.ttf', '.TTF', '.Ttf', '.ttc', '.otf']
+language_codes = {"eng": "English", "rus": "Russian"}
 error_list = []
-shema = []
+schema = []
 base_info = ''
 
 
 def output_info(number, output, file_list):
     with lock:
         os.system('clear')
-        global shema, base_info
+        global schema, base_info
         files = ''
         for file in file_list:
             files += f'{file}\n'
         in_schema = False
 
-        for row in shema:
+        for row in schema:
             if number == row[0]:
                 row[1] += f'\n{output}'
                 in_schema = True
 
         if not in_schema:
-            shema.append([number, output, files])
+            schema.append([number, output, files])
         table = PrettyTable(["EP", "Output", "Files"])
 
-        for row in shema:
+        for row in schema:
             table.add_row(row)
 
         table.align["Output"] = "l"
@@ -98,10 +99,34 @@ def group_files_by_number(file_list, number):
 
 
 def merge_files(file_list, output_filename, fonts_list, number):
-    command = ['mkvmerge', '--quiet', '-o', output_filename] + file_list
+    command = ['mkvmerge', '--quiet', '-o', output_filename]
+
+    for file in file_list:
+        name, extension = os.path.splitext(os.path.basename(file))
+
+        # Устанавливаем язык трека (если найден)
+        match = re.search(r'\b(eng|rus|fra|spa|deu)\b', file, re.IGNORECASE)
+        language_code = match.group(1).lower() if match else None
+
+        # Формируем параметры для текущего файла
+        if extension in ['.ass', '.srt', '.ssa', '.sub']:
+            if language_code:
+                language_option = [
+                    f'--language', f'0:{language_code}',
+                    f'--track-name', f'0:{name}'
+                ]
+            else:
+                language_option = [
+                    f'--track-name', f'0:{name}'
+                ]
+            command.extend(language_option)
+        command.append(file)
+
+    # Выполняем команду mkvmerge
     output_info(number, 'Merge: started', file_list)
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
+
     if process.returncode == 0:
         output_info(number, 'Merge: done', file_list)
         if fonts_list:
@@ -109,7 +134,6 @@ def merge_files(file_list, output_filename, fonts_list, number):
     else:
         output_info(number, 'Merge: error', file_list)
         error_info(f"Merge: error\n{number}\n{stdout.decode('utf-8')}\n{stderr.decode('utf-8')}\n")
-
 
 def change_font(output_filename, fonts_list, number, file_list):
     command = ['mkvpropedit', output_filename] + fonts_list
